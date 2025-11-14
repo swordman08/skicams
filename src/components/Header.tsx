@@ -1,10 +1,19 @@
-import { Mountain, History as HistoryIcon } from "lucide-react";
+import { useState } from "react";
+import { Mountain, History as HistoryIcon, Map } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { TrailMapDialog } from "@/components/TrailMapDialog";
 
 export const Header = () => {
   const location = useLocation();
   const isHistoryPage = location.pathname === "/history";
+  const [trailMapOpen, setTrailMapOpen] = useState(false);
+  const [mapType, setMapType] = useState<"winter" | "northway">("winter");
+
+  const openTrailMap = (type: "winter" | "northway") => {
+    setMapType(type);
+    setTrailMapOpen(true);
+  };
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -20,7 +29,23 @@ export const Header = () => {
             </div>
           </Link>
           
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => openTrailMap("winter")}
+            >
+              <Map className="h-4 w-4" />
+              Trail Map
+            </Button>
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => openTrailMap("northway")}
+            >
+              <Map className="h-4 w-4" />
+              Northway
+            </Button>
             {!isHistoryPage ? (
               <Button asChild variant="outline" className="gap-2">
                 <Link to="/history">
@@ -37,6 +62,11 @@ export const Header = () => {
               </Button>
             )}
           </nav>
+          <TrailMapDialog 
+            open={trailMapOpen} 
+            onOpenChange={setTrailMapOpen} 
+            mapType={mapType}
+          />
         </div>
       </div>
     </header>
