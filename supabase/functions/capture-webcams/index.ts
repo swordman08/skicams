@@ -126,13 +126,127 @@ serve(async (req) => {
           });
 
         } else if (camera.source_type === 'verkada') {
-          // Verkada cameras require special handling - placeholder for now
-          console.log(`Verkada camera ${camera.name} - placeholder snapshot`);
-          results.push({
-            camera: camera.name,
-            success: false,
-            error: 'Verkada integration pending'
-          });
+          // Verkada cameras - screenshot the webcam page
+          console.log(`Processing Verkada camera: ${camera.name}`);
+          
+          const screenshotOneKey = Deno.env.get('SCREENSHOTONE_API_KEY');
+          if (!screenshotOneKey) {
+            console.error('SCREENSHOTONE_API_KEY not configured');
+            results.push({
+              camera: camera.name,
+              success: false,
+              error: 'Screenshot API key not configured'
+            });
+            continue;
+          }
+
+          try {
+            // Screenshot the Crystal Mountain webcam page
+            const pageUrl = 'https://www.crystalmountainresort.com/the-mountain/mountain-report-and-webcams/webcams';
+            
+            // Build ScreenshotOne API URL
+            const screenshotUrl = new URL('https://api.screenshotone.com/take');
+            screenshotUrl.searchParams.set('access_key', screenshotOneKey);
+            screenshotUrl.searchParams.set('url', pageUrl);
+            screenshotUrl.searchParams.set('full_page', 'false');
+            screenshotUrl.searchParams.set('viewport_width', '1920');
+            screenshotUrl.searchParams.set('viewport_height', '1080');
+            screenshotUrl.searchParams.set('device_scale_factor', '1');
+            screenshotUrl.searchParams.set('format', 'jpg');
+            screenshotUrl.searchParams.set('image_quality', '80');
+            screenshotUrl.searchParams.set('block_ads', 'true');
+            screenshotUrl.searchParams.set('block_cookie_banners', 'true');
+            screenshotUrl.searchParams.set('block_trackers', 'true');
+            
+            // Add a delay to let the page load
+            screenshotUrl.searchParams.set('delay', '3');
+
+            console.log(`Fetching screenshot from: ${screenshotUrl.toString().replace(screenshotOneKey, 'REDACTED')}`);
+            
+            const screenshotResponse = await fetch(screenshotUrl.toString());
+            
+            if (!screenshotResponse.ok) {
+              const errorText = await screenshotResponse.text();
+              console.error(`Screenshot API error: ${screenshotResponse.status} - ${errorText}`);
+              results.push({
+                camera: camera.name,
+                success: false,
+                error: `Screenshot failed: ${screenshotResponse.status}`
+              });
+              continue;
+            }
+
+            const screenshotBlob = await screenshotResponse.blob();
+            const screenshotBuffer = await screenshotBlob.arrayBuffer();
+            const screenshotBytes = new Uint8Array(screenshotBuffer);
+
+            console.log(`Screenshot captured, size: ${screenshotBytes.length} bytes`);
+
+            // Generate filename
+            const timestamp = now.toISOString().replace(/[:.]/g, '-');
+            const filename = `${camera.slug}/${timestamp}.jpg`;
+
+            // Upload to storage
+            const { error: uploadError } = await supabase.storage
+              .from('webcam-snapshots')
+              .upload(filename, screenshotBytes, {
+                contentType: 'image/jpeg',
+                cacheControl: '3600',
+              });
+
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              results.push({
+                camera: camera.name,
+                success: false,
+                error: uploadError.message
+              });
+              continue;
+            }
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+              .from('webcam-snapshots')
+              .getPublicUrl(filename);
+
+            console.log(`Screenshot uploaded successfully: ${publicUrl}`);
+
+            // Create snapshot record
+            const { error: snapshotError } = await supabase
+              .from('snapshots')
+              .insert({
+                camera_id: camera.id,
+                image_url: publicUrl,
+                captured_at: now.toISOString(),
+                time_slot: timeSlot,
+                file_size_bytes: screenshotBytes.length,
+              });
+
+            if (snapshotError) {
+              console.error('Snapshot record error:', snapshotError);
+              results.push({
+                camera: camera.name,
+                success: false,
+                error: snapshotError.message
+              });
+              continue;
+            }
+
+            results.push({
+              camera: camera.name,
+              success: true,
+              url: publicUrl,
+              size: screenshotBytes.length
+            });
+
+          } catch (error) {
+            console.error(`Error processing Verkada camera ${camera.name}:`, error);
+            results.push({
+              camera: camera.name,
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            });
+          }
         }
 
       } catch (error) {
