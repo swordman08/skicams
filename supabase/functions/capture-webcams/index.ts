@@ -129,9 +129,9 @@ serve(async (req) => {
           // Verkada cameras - screenshot the embed page
           console.log(`Processing Verkada camera: ${camera.name}`);
           
-          const screenshotOneKey = Deno.env.get('SCREENSHOTONE_API_KEY');
-          if (!screenshotOneKey) {
-            console.error('SCREENSHOTONE_API_KEY not configured');
+          const urlboxKey = Deno.env.get('SCREENSHOTONE_API_KEY'); // Using same env var name for Urlbox
+          if (!urlboxKey) {
+            console.error('Urlbox API key not configured');
             results.push({
               camera: camera.name,
               success: false,
@@ -141,27 +141,21 @@ serve(async (req) => {
           }
 
           try {
-            // Screenshot the camera's embed URL
+            // Screenshot the camera's embed URL using Urlbox
             const pageUrl = camera.source_url;
             
-            // Build ScreenshotOne API URL
-            const screenshotUrl = new URL('https://api.screenshotone.com/take');
-            screenshotUrl.searchParams.set('access_key', screenshotOneKey);
+            // Build Urlbox API URL
+            const screenshotUrl = new URL(`https://api.urlbox.io/v1/${urlboxKey}/png`);
             screenshotUrl.searchParams.set('url', pageUrl);
-            screenshotUrl.searchParams.set('full_page', 'false');
-            screenshotUrl.searchParams.set('viewport_width', '1920');
-            screenshotUrl.searchParams.set('viewport_height', '1080');
-            screenshotUrl.searchParams.set('device_scale_factor', '1');
+            screenshotUrl.searchParams.set('width', '1920');
+            screenshotUrl.searchParams.set('height', '1080');
             screenshotUrl.searchParams.set('format', 'jpg');
-            screenshotUrl.searchParams.set('image_quality', '80');
+            screenshotUrl.searchParams.set('quality', '80');
             screenshotUrl.searchParams.set('block_ads', 'true');
-            screenshotUrl.searchParams.set('block_cookie_banners', 'true');
-            screenshotUrl.searchParams.set('block_trackers', 'true');
-            
-            // Add a delay to let the video load
-            screenshotUrl.searchParams.set('delay', '5');
+            screenshotUrl.searchParams.set('delay', '5000'); // 5 seconds in milliseconds
+            screenshotUrl.searchParams.set('full_page', 'false');
 
-            console.log(`Fetching screenshot from: ${screenshotUrl.toString().replace(screenshotOneKey, 'REDACTED')}`);
+            console.log(`Fetching screenshot from Urlbox for: ${camera.name}`);
             
             const screenshotResponse = await fetch(screenshotUrl.toString());
             
