@@ -103,6 +103,11 @@ const History = () => {
                       <h3 className="font-semibold text-foreground line-clamp-1">
                         {snapshot.camera.name}
                       </h3>
+                      {snapshot.camera.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {snapshot.camera.description}
+                        </p>
+                      )}
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-3 w-3" />
                         {format(new Date(snapshot.captured_at), 'MMM d, yyyy')}
@@ -162,6 +167,11 @@ const History = () => {
                 </div>
                 <div className="bg-card p-4 border-t border-border">
                   <h3 className="font-semibold text-lg mb-2">{selectedImage.camera.name}</h3>
+                  {selectedImage.camera.description && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {selectedImage.camera.description}
+                    </p>
+                  )}
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />

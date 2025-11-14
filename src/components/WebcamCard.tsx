@@ -43,6 +43,11 @@ export const WebcamCard = ({ snapshot, date, time }: WebcamCardProps) => {
             <Camera className="h-4 w-4 text-primary" />
             <h3 className="font-semibold text-foreground">{snapshot.cameraName}</h3>
           </div>
+          {snapshot.description && (
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+              {snapshot.description}
+            </p>
+          )}
           <p className="text-sm text-muted-foreground">
             {snapshot.timestamp.toLocaleTimeString('en-US', {
               hour: 'numeric',
@@ -74,27 +79,32 @@ export const WebcamCard = ({ snapshot, date, time }: WebcamCardProps) => {
                 className="max-w-full max-h-[85vh] object-contain"
               />
             </div>
-            <div className="bg-card p-4 border-t border-border">
-              <h3 className="font-semibold text-lg mb-2">{snapshot.cameraName}</h3>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  {snapshot.timestamp.toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
+                <div className="bg-card p-4 border-t border-border">
+                  <h3 className="font-semibold text-lg mb-2">{snapshot.cameraName}</h3>
+                  {snapshot.description && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {snapshot.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      {snapshot.timestamp.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      {snapshot.timestamp.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  {snapshot.timestamp.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </div>
-              </div>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
