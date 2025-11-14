@@ -126,7 +126,7 @@ serve(async (req) => {
           });
 
         } else if (camera.source_type === 'verkada') {
-          // Verkada cameras - screenshot the webcam page
+          // Verkada cameras - screenshot the embed page
           console.log(`Processing Verkada camera: ${camera.name}`);
           
           const screenshotOneKey = Deno.env.get('SCREENSHOTONE_API_KEY');
@@ -141,8 +141,8 @@ serve(async (req) => {
           }
 
           try {
-            // Screenshot the Crystal Mountain webcam page
-            const pageUrl = 'https://www.crystalmountainresort.com/the-mountain/mountain-report-and-webcams/webcams';
+            // Screenshot the camera's embed URL
+            const pageUrl = camera.source_url;
             
             // Build ScreenshotOne API URL
             const screenshotUrl = new URL('https://api.screenshotone.com/take');
@@ -158,8 +158,8 @@ serve(async (req) => {
             screenshotUrl.searchParams.set('block_cookie_banners', 'true');
             screenshotUrl.searchParams.set('block_trackers', 'true');
             
-            // Add a delay to let the page load
-            screenshotUrl.searchParams.set('delay', '3');
+            // Add a delay to let the video load
+            screenshotUrl.searchParams.set('delay', '5');
 
             console.log(`Fetching screenshot from: ${screenshotUrl.toString().replace(screenshotOneKey, 'REDACTED')}`);
             
