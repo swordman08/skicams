@@ -159,9 +159,7 @@ serve(async (req) => {
                 height: 1080,
                 format: 'jpg',
                 quality: 80,
-                block_ads: true,
-                full_page: false,
-                delay: 5000, // 5 seconds
+                delay: 15000, // 15 seconds for video player to fully load
               }),
             });
             
@@ -181,6 +179,12 @@ serve(async (req) => {
             const screenshotBytes = new Uint8Array(screenshotBuffer);
 
             console.log(`Screenshot captured, size: ${screenshotBytes.length} bytes`);
+            
+            // If screenshot is suspiciously small, log the content for debugging
+            if (screenshotBytes.length < 1000) {
+              const textContent = new TextDecoder().decode(screenshotBytes);
+              console.error(`Screenshot too small (${screenshotBytes.length} bytes), content:`, textContent);
+            }
 
             // Generate filename
             const timestamp = now.toISOString().replace(/[:.]/g, '-');
