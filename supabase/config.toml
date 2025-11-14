@@ -1,1 +1,4 @@
 project_id = "ddddgptcqdutrkvebbfx"
+
+[functions.capture-webcams]
+verify_jwt = false

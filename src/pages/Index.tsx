@@ -3,25 +3,41 @@ import { Header } from "@/components/Header";
 import { DateSelector } from "@/components/DateSelector";
 import { TimeSlotSelector } from "@/components/TimeSlotSelector";
 import { WebcamCard } from "@/components/WebcamCard";
-import { generateMockSnapshots } from "@/data/mockData";
+import { useWebcamData } from "@/hooks/useWebcamData";
+import { useCaptureWebcams } from "@/hooks/useCaptureWebcams";
+import { Button } from "@/components/ui/button";
+import { Camera, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>("10:30");
+  const { data: snapshots = [], isLoading, refetch } = useWebcamData(selectedDate, selectedTime);
+  const { captureWebcams } = useCaptureWebcams();
 
-  const snapshots = generateMockSnapshots(selectedDate, selectedTime);
+  const handleCaptureNow = async () => {
+    await captureWebcams();
+    refetch();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-mountain-sky to-background">
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 space-y-2">
-          <h2 className="text-3xl font-bold text-foreground">Webcam History</h2>
-          <p className="text-muted-foreground">
-            View historical snapshots from Crystal Mountain's webcams
-          </p>
+        <div className="mb-8 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-foreground">Webcam History</h2>
+              <p className="text-muted-foreground">
+                View historical snapshots from Crystal Mountain's webcams
+              </p>
+            </div>
+            <Button onClick={handleCaptureNow} className="gap-2">
+              <Camera className="h-4 w-4" />
+              Capture Now
+            </Button>
+          </div>
         </div>
 
         <div className="mb-8 space-y-6 bg-card rounded-xl p-6 shadow-sm border border-border">
@@ -41,16 +57,40 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {snapshots.map((snapshot) => (
-            <WebcamCard
-              key={snapshot.id}
-              snapshot={snapshot}
-              date={format(selectedDate, "yyyy-MM-dd")}
-              time={selectedTime}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : snapshots.length === 0 ? (
+          <div className="text-center py-12 bg-card rounded-xl border border-border">
+            <Camera className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">No snapshots found</h3>
+            <p className="text-muted-foreground mb-4">
+              No webcam snapshots available for this date and time.
+            </p>
+            <Button onClick={handleCaptureNow} className="gap-2">
+              <Camera className="h-4 w-4" />
+              Capture Now
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {snapshots.map((snapshot: any) => (
+              <WebcamCard
+                key={snapshot.id}
+                snapshot={{
+                  id: snapshot.id,
+                  cameraName: snapshot.camera.name,
+                  timestamp: new Date(snapshot.captured_at),
+                  imageUrl: snapshot.image_url,
+                  resort: 'Crystal Mountain Washington'
+                }}
+                date={format(selectedDate, "yyyy-MM-dd")}
+                time={selectedTime}
+              />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
