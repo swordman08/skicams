@@ -146,7 +146,7 @@ serve(async (req) => {
             
             console.log(`Fetching screenshot from Urlbox for: ${camera.name}`);
             
-            // Use Urlbox's new API format with POST and Bearer auth
+            // Use Urlbox's API with minimal parameters
             const screenshotResponse = await fetch('https://api.urlbox.io/v1/render/sync', {
               method: 'POST',
               headers: {
@@ -158,8 +158,7 @@ serve(async (req) => {
                 width: 1920,
                 height: 1080,
                 format: 'jpg',
-                quality: 80,
-                delay: 15000, // 15 seconds for video player to fully load
+                delay: 15000
               }),
             });
             
@@ -174,17 +173,39 @@ serve(async (req) => {
               continue;
             }
 
-            const screenshotBlob = await screenshotResponse.blob();
+            // Urlbox sync API returns JSON with renderUrl
+            const responseData = await screenshotResponse.json();
+            console.log(`Urlbox response:`, responseData);
+            
+            if (!responseData.renderUrl) {
+              console.error('No renderUrl in Urlbox response:', responseData);
+              results.push({
+                camera: camera.name,
+                success: false,
+                error: 'No render URL returned'
+              });
+              continue;
+            }
+
+            // Fetch the actual screenshot from the render URL
+            console.log(`Fetching rendered image from: ${responseData.renderUrl}`);
+            const imageResponse = await fetch(responseData.renderUrl);
+            
+            if (!imageResponse.ok) {
+              console.error(`Failed to fetch rendered image: ${imageResponse.status}`);
+              results.push({
+                camera: camera.name,
+                success: false,
+                error: `Failed to download render: ${imageResponse.status}`
+              });
+              continue;
+            }
+
+            const screenshotBlob = await imageResponse.blob();
             const screenshotBuffer = await screenshotBlob.arrayBuffer();
             const screenshotBytes = new Uint8Array(screenshotBuffer);
 
-            console.log(`Screenshot captured, size: ${screenshotBytes.length} bytes`);
-            
-            // If screenshot is suspiciously small, log the content for debugging
-            if (screenshotBytes.length < 1000) {
-              const textContent = new TextDecoder().decode(screenshotBytes);
-              console.error(`Screenshot too small (${screenshotBytes.length} bytes), content:`, textContent);
-            }
+            console.log(`Screenshot downloaded, size: ${screenshotBytes.length} bytes`);
 
             // Generate filename
             const timestamp = now.toISOString().replace(/[:.]/g, '-');
