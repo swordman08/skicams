@@ -35,13 +35,15 @@ serve(async (req) => {
     const results = [];
     const now = new Date();
     
-    // Determine time slot based on current time
-    const hour = now.getHours();
-    let timeSlot = '10:30 AM'; // default
-    if (hour >= 4 && hour < 10) timeSlot = '7:30 AM';
-    else if (hour >= 10 && hour < 13) timeSlot = '10:30 AM';
-    else if (hour >= 13 && hour < 16) timeSlot = '1:30 PM';
-    else if (hour >= 16 && hour < 20) timeSlot = '4:00 PM';
+    // Convert UTC to PST (UTC-8) to determine time slot
+    const pstOffset = -8 * 60; // PST is UTC-8
+    const pstTime = new Date(now.getTime() + pstOffset * 60 * 1000);
+    const hour = pstTime.getUTCHours();
+    
+    // Determine time slot based on PST time (only 7:30 AM and 1:30 PM)
+    let timeSlot = '7:30 AM'; // default
+    if (hour >= 13) timeSlot = '1:30 PM'; // After 1 PM PST
+    else timeSlot = '7:30 AM'; // Before 1 PM PST
 
     for (const camera of cameras || []) {
       try {
