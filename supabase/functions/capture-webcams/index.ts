@@ -144,20 +144,26 @@ serve(async (req) => {
             // Screenshot the camera's embed URL using Urlbox
             const pageUrl = camera.source_url;
             
-            // Build Urlbox API URL
-            const screenshotUrl = new URL(`https://api.urlbox.io/v1/${urlboxKey}/png`);
-            screenshotUrl.searchParams.set('url', pageUrl);
-            screenshotUrl.searchParams.set('width', '1920');
-            screenshotUrl.searchParams.set('height', '1080');
-            screenshotUrl.searchParams.set('format', 'jpg');
-            screenshotUrl.searchParams.set('quality', '80');
-            screenshotUrl.searchParams.set('block_ads', 'true');
-            screenshotUrl.searchParams.set('delay', '5000'); // 5 seconds in milliseconds
-            screenshotUrl.searchParams.set('full_page', 'false');
-
             console.log(`Fetching screenshot from Urlbox for: ${camera.name}`);
             
-            const screenshotResponse = await fetch(screenshotUrl.toString());
+            // Use Urlbox's new API format with POST and Bearer auth
+            const screenshotResponse = await fetch('https://api.urlbox.io/v1/render/sync', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${urlboxKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                url: pageUrl,
+                width: 1920,
+                height: 1080,
+                format: 'jpg',
+                quality: 80,
+                block_ads: true,
+                full_page: false,
+                delay: 5000, // 5 seconds
+              }),
+            });
             
             if (!screenshotResponse.ok) {
               const errorText = await screenshotResponse.text();
