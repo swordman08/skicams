@@ -4,6 +4,7 @@ export interface WebcamSnapshot {
   timestamp: Date;
   imageUrl: string;
   resort: string;
+  description?: string;
 }
 
 export interface TimeSlot {

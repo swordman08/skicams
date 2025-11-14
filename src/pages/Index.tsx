@@ -80,7 +80,8 @@ const Index = () => {
                   cameraName: snapshot.camera.name,
                   timestamp: new Date(snapshot.captured_at),
                   imageUrl: snapshot.image_url,
-                  resort: 'Crystal Mountain Washington'
+                  resort: 'Crystal Mountain Washington',
+                  description: snapshot.camera.description
                 }}
                 date={format(selectedDate, "yyyy-MM-dd")}
                 time={selectedTime}
