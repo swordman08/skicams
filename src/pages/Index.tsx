@@ -89,6 +89,12 @@ const Index = () => {
             ))}
           </div>
         )}
+        
+        <div className="mt-8 flex justify-end">
+          <p className="text-xs text-muted-foreground">
+            Webcam history powered by <a href="https://urlbox.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Urlbox</a>
+          </p>
+        </div>
       </main>
     </div>
   );

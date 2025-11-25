@@ -40,10 +40,11 @@ serve(async (req) => {
     const pstTime = new Date(now.getTime() + pstOffset * 60 * 1000);
     const hour = pstTime.getUTCHours();
     
-    // Determine time slot based on PST time (only 7:30 AM and 1:30 PM)
+    // Determine time slot based on PST time (7:30 AM, 12:00 PM, and 3:30 PM)
     let timeSlot = '7:30 AM'; // default
-    if (hour >= 13) timeSlot = '1:30 PM'; // After 1 PM PST
-    else timeSlot = '7:30 AM'; // Before 1 PM PST
+    if (hour >= 15) timeSlot = '3:30 PM'; // After 3 PM PST
+    else if (hour >= 12) timeSlot = '12:00 PM'; // After 12 PM PST
+    else timeSlot = '7:30 AM'; // Before 12 PM PST
 
     for (const camera of cameras || []) {
       try {
