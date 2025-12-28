@@ -39,22 +39,26 @@ serve(async (req) => {
   }
 
   try {
-    // Security: Authenticate request using webhook secret
+    // Security: Authenticate request using webhook secret (REQUIRED)
     const webhookSecret = Deno.env.get('CAPTURE_WEBHOOK_SECRET');
-    const authHeader = req.headers.get('Authorization');
     
-    // If webhook secret is configured, require it for authentication
-    if (webhookSecret) {
-      const providedSecret = authHeader?.replace('Bearer ', '');
-      if (providedSecret !== webhookSecret) {
-        console.error('Unauthorized: Invalid or missing webhook secret');
-        return new Response(
-          JSON.stringify({ success: false, error: 'Unauthorized' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-        );
-      }
-    } else {
-      console.warn('CAPTURE_WEBHOOK_SECRET not configured - endpoint is unprotected');
+    if (!webhookSecret) {
+      console.error('CAPTURE_WEBHOOK_SECRET not configured - rejecting request');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Server configuration error' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+    
+    const authHeader = req.headers.get('Authorization');
+    const providedSecret = authHeader?.replace('Bearer ', '');
+    
+    if (providedSecret !== webhookSecret) {
+      console.error('Unauthorized: Invalid or missing webhook secret');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
