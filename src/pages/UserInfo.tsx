@@ -270,9 +270,12 @@ const UserInfo = () => {
           </Card>
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center space-y-1">
           <p className="text-xs text-muted-foreground">
-            This information is collected for demonstration purposes only and is not stored.
+            This information is collected for analytics purposes to help improve our service.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Privacy protections include IP masking and no personally identifiable information is shared.
           </p>
         </div>
       </main>
