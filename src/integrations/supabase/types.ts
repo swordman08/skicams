@@ -138,6 +138,63 @@ export type Database = {
           },
         ]
       }
+      visitor_logs: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          id: string
+          ip_partial: string | null
+          isp: string | null
+          language: string | null
+          operating_system: string | null
+          page_path: string
+          referrer: string | null
+          region: string | null
+          screen_resolution: string | null
+          session_id: string
+          timezone: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_partial?: string | null
+          isp?: string | null
+          language?: string | null
+          operating_system?: string | null
+          page_path: string
+          referrer?: string | null
+          region?: string | null
+          screen_resolution?: string | null
+          session_id: string
+          timezone?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_partial?: string | null
+          isp?: string | null
+          language?: string | null
+          operating_system?: string | null
+          page_path?: string
+          referrer?: string | null
+          region?: string | null
+          screen_resolution?: string | null
+          session_id?: string
+          timezone?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
