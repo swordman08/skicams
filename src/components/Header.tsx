@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mountain, History as HistoryIcon, Map } from "lucide-react";
+import { Mountain, History as HistoryIcon, Map, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { TrailMapDialog } from "@/components/TrailMapDialog";
@@ -61,6 +61,11 @@ export const Header = () => {
                 </Link>
               </Button>
             )}
+            <Button asChild variant="ghost" size="icon" title="User Info">
+              <Link to="/user-info">
+                <User className="h-4 w-4" />
+              </Link>
+            </Button>
           </nav>
           <TrailMapDialog 
             open={trailMapOpen} 
