@@ -97,8 +97,7 @@ const Index = () => {
             rel="noopener noreferrer" 
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            Built by <span className="underline">Decker</span>
-            <Github className="h-3.5 w-3.5" />
+            Built by <Github className="h-3.5 w-3.5" /> <span className="underline">Decker</span>
           </a>
           <p className="text-xs text-muted-foreground">
             Webcam history powered by <a href="https://urlbox.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Urlbox</a>
