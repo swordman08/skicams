@@ -14,7 +14,8 @@ const ALLOWED_DOMAINS = [
   'backend.roundshot.com',
   'api.urlbox.io',
   'urlbox.io',
-  's3.urlbox.io'
+  's3.urlbox.io',
+  'vauth.command.verkada.com'
 ];
 
 // Security: Validate URL is from allowed domain
