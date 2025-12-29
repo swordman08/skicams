@@ -38,6 +38,9 @@ const Index = () => {
             <p className="text-muted-foreground">
               View historical snapshots from Crystal Mountain's webcams
             </p>
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              Note: Crystal Mountain's power was out and they changed their webcams backend, so data is missing from December 9th-29th.
+            </p>
           </div>
         </div>
 
