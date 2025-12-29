@@ -5,7 +5,7 @@ import { DateSelector } from "@/components/DateSelector";
 import { TimeSlotSelector } from "@/components/TimeSlotSelector";
 import { WebcamCard } from "@/components/WebcamCard";
 import { useWebcamData } from "@/hooks/useWebcamData";
-import { Camera, RefreshCw } from "lucide-react";
+import { Camera, RefreshCw, Github } from "lucide-react";
 import { format } from "date-fns";
 
 const Index = () => {
@@ -90,7 +90,16 @@ const Index = () => {
           </div>
         )}
         
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex justify-between items-center">
+          <a 
+            href="https://swordman08.github.io/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Built by <span className="underline">Decker</span>
+            <Github className="h-3.5 w-3.5" />
+          </a>
           <p className="text-xs text-muted-foreground">
             Webcam history powered by <a href="https://urlbox.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Urlbox</a>
           </p>
