@@ -172,7 +172,7 @@ const History = () => {
                       {selectedImage.camera.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       {format(new Date(selectedImage.captured_at), 'MMMM d, yyyy')}
