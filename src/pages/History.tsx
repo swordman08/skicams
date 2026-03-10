@@ -56,10 +56,10 @@ const History = () => {
     <div className="min-h-screen bg-gradient-to-b from-mountain-sky to-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 space-y-2">
-          <h2 className="text-3xl font-bold text-foreground">Complete History</h2>
-          <p className="text-muted-foreground">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8 space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Complete History</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Browse all captured webcam snapshots from Crystal Mountain
           </p>
         </div>
