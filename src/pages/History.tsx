@@ -145,7 +145,7 @@ const History = () => {
         )}
 
         <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden">
+          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden w-full">
             <DialogHeader className="absolute top-0 right-0 z-10 p-4">
               <Button
                 variant="ghost"
