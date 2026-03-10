@@ -94,6 +94,7 @@ export const WebcamCard = ({ snapshot, date, time }: WebcamCardProps) => {
                         month: 'long',
                         day: 'numeric',
                         year: 'numeric',
+                        timeZone: 'America/Los_Angeles',
                       })}
                     </div>
                     <div className="flex items-center gap-2">
@@ -102,7 +103,8 @@ export const WebcamCard = ({ snapshot, date, time }: WebcamCardProps) => {
                         hour: 'numeric',
                         minute: '2-digit',
                         hour12: true,
-                      })}
+                        timeZone: 'America/Los_Angeles',
+                      })} PST
                     </div>
                   </div>
                 </div>
