@@ -14,13 +14,13 @@ export const TimeSlotSelector = ({ selectedTime, onTimeSelect }: TimeSlotSelecto
         <Clock className="h-4 w-4" />
         <span>Select Time</span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {TIME_SLOTS.map((slot) => (
           <Button
             key={slot.time}
             variant={selectedTime === slot.time ? "default" : "outline"}
             onClick={() => onTimeSelect(slot.time)}
-            className="w-full"
+            className="w-full text-xs sm:text-sm px-2 sm:px-4"
           >
             {slot.label}
           </Button>

@@ -56,10 +56,10 @@ const History = () => {
     <div className="min-h-screen bg-gradient-to-b from-mountain-sky to-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 space-y-2">
-          <h2 className="text-3xl font-bold text-foreground">Complete History</h2>
-          <p className="text-muted-foreground">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8 space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Complete History</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Browse all captured webcam snapshots from Crystal Mountain
           </p>
         </div>
@@ -145,7 +145,7 @@ const History = () => {
         )}
 
         <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden">
+          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden w-full">
             <DialogHeader className="absolute top-0 right-0 z-10 p-4">
               <Button
                 variant="ghost"
@@ -172,7 +172,7 @@ const History = () => {
                       {selectedImage.camera.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       {format(new Date(selectedImage.captured_at), 'MMMM d, yyyy')}
