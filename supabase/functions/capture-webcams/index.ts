@@ -42,18 +42,21 @@ serve(async (req) => {
   }
 
   try {
-    // Security: Authenticate request using webhook secret OR anon key (for cron jobs)
+    // Security: Authenticate request using webhook secret only
     const webhookSecret = Deno.env.get('CAPTURE_WEBHOOK_SECRET');
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    if (!webhookSecret) {
+      console.error('CAPTURE_WEBHOOK_SECRET is not configured');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Server misconfiguration' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
     
     const authHeader = req.headers.get('Authorization');
     const providedToken = authHeader?.replace('Bearer ', '');
     
-    // Allow either webhook secret (if configured) or anon key (for cron jobs)
-    const isValidWebhookSecret = webhookSecret && providedToken === webhookSecret;
-    const isValidAnonKey = anonKey && providedToken === anonKey;
-    
-    if (!isValidWebhookSecret && !isValidAnonKey) {
+    if (providedToken !== webhookSecret) {
       console.error('Unauthorized: Invalid or missing authorization');
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
@@ -61,7 +64,7 @@ serve(async (req) => {
       );
     }
     
-    console.log('Request authorized via', isValidWebhookSecret ? 'webhook secret' : 'anon key');
+    console.log('Request authorized via webhook secret');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
