@@ -40,7 +40,7 @@ const CameraDetail = () => {
     <div className="min-h-screen bg-gradient-to-b from-mountain-sky to-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Link to={`/?date=${dateParam}&time=${timeParam}`}>
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
