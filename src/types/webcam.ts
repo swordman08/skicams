@@ -13,9 +13,9 @@ export interface TimeSlot {
 }
 
 export const TIME_SLOTS: TimeSlot[] = [
-  { time: "07:30", label: "7:30 AM" },
-  { time: "12:00", label: "12:00 PM" },
-  { time: "15:30", label: "3:30 PM" },
+  { time: "07:30", label: "7:30 AM PST" },
+  { time: "12:00", label: "12:00 PM PST" },
+  { time: "15:30", label: "3:30 PM PST" },
 ];
 
 export const CRYSTAL_MOUNTAIN_CAMERAS = [
