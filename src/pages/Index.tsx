@@ -14,7 +14,6 @@ const Index = () => {
   const [selectedTime, setSelectedTime] = useState<string>("10:30");
   const { data: snapshots = [], isLoading } = useWebcamData(selectedDate, selectedTime);
 
-  // Handle URL parameters for deep linking from history page
   useEffect(() => {
     const dateParam = searchParams.get('date');
     const timeParam = searchParams.get('time');
@@ -31,11 +30,11 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-mountain-sky to-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold text-foreground">Webcam Viewer</h2>
-            <p className="text-muted-foreground">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-8 space-y-2 sm:space-y-4">
+          <div className="space-y-1 sm:space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Webcam Viewer</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
               View historical snapshots from Crystal Mountain's webcams
             </p>
             <p className="text-xs text-amber-600 dark:text-amber-400">
@@ -44,15 +43,13 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="mb-8 space-y-6 bg-card rounded-xl p-6 shadow-sm border border-border">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-muted-foreground">Select Date</span>
-              <DateSelector
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-              />
-            </div>
+        <div className="mb-4 sm:mb-8 space-y-4 sm:space-y-6 bg-card rounded-xl p-4 sm:p-6 shadow-sm border border-border">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-muted-foreground">Select Date</span>
+            <DateSelector
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
           </div>
           
           <TimeSlotSelector
@@ -69,12 +66,12 @@ const Index = () => {
           <div className="text-center py-12 bg-card rounded-xl border border-border">
             <Camera className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">No snapshots found</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               No webcam snapshots available for this date and time.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {snapshots.map((snapshot: any) => (
               <WebcamCard
                 key={snapshot.id}
@@ -93,7 +90,7 @@ const Index = () => {
           </div>
         )}
         
-        <div className="mt-8 flex justify-between items-center">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between items-center gap-2">
           <a 
             href="https://swordman08.github.io/" 
             target="_blank" 
