@@ -42,21 +42,17 @@ serve(async (req) => {
   }
 
   try {
-    // Security: Authenticate request using webhook secret only
+    // Security: Authenticate request using webhook secret or service role key
     const webhookSecret = Deno.env.get('CAPTURE_WEBHOOK_SECRET');
-    
-    if (!webhookSecret) {
-      console.error('CAPTURE_WEBHOOK_SECRET is not configured');
-      return new Response(
-        JSON.stringify({ success: false, error: 'Server misconfiguration' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      );
-    }
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
     const authHeader = req.headers.get('Authorization');
     const providedToken = authHeader?.replace('Bearer ', '');
     
-    if (providedToken !== webhookSecret) {
+    const isValidWebhook = webhookSecret && providedToken === webhookSecret;
+    const isValidServiceRole = serviceRoleKey && providedToken === serviceRoleKey;
+    
+    if (!isValidWebhook && !isValidServiceRole) {
       console.error('Unauthorized: Invalid or missing authorization');
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
@@ -64,7 +60,7 @@ serve(async (req) => {
       );
     }
     
-    console.log('Request authorized via webhook secret');
+    console.log('Request authorized via', isValidWebhook ? 'webhook secret' : 'service role key');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
