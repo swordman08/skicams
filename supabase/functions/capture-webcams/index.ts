@@ -90,10 +90,15 @@ serve(async (req) => {
     const results: Array<{ camera: string; success: boolean }> = [];
     const now = new Date();
     
-    // Convert UTC to PST (UTC-8) to determine time slot
-    const pstOffset = -8 * 60; // PST is UTC-8
-    const pstTime = new Date(now.getTime() + pstOffset * 60 * 1000);
-    const hour = pstTime.getUTCHours();
+    // Convert UTC to Pacific Time to determine time slot
+    // Determine if DST is in effect (second Sunday of March to first Sunday of November)
+    const year = now.getUTCFullYear();
+    const marchSecondSunday = new Date(Date.UTC(year, 2, 8 + (7 - new Date(Date.UTC(year, 2, 8)).getUTCDay()) % 7));
+    const novFirstSunday = new Date(Date.UTC(year, 10, 1 + (7 - new Date(Date.UTC(year, 10, 1)).getUTCDay()) % 7));
+    const isDST = now >= marchSecondSunday && now < novFirstSunday;
+    const pacificOffset = isDST ? -7 * 60 : -8 * 60;
+    const pacificTime = new Date(now.getTime() + pacificOffset * 60 * 1000);
+    const hour = pacificTime.getUTCHours();
     
     // Determine time slot based on PST time (7:30 AM, 12:00 PM, and 3:30 PM)
     let timeSlot = '7:30 AM'; // default
