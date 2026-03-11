@@ -14,7 +14,7 @@ const History = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState<any>(null);
-  const [selectedCamera, setSelectedCamera] = useState<string>("all");
+  const [selectedCameras, setSelectedCameras] = useState<string[]>([]);
   const itemsPerPage = 20;
 
   const { data: cameras = [] } = useQuery({
