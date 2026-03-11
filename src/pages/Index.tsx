@@ -94,6 +94,18 @@ const Index = () => {
           />
         </div>
 
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setNewestFirst(!newestFirst)}
+            className="gap-2 text-xs sm:text-sm"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            {newestFirst ? "Newest First" : "Oldest First"}
+          </Button>
+        </div>
+
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <RefreshCw className="h-8 w-8 animate-spin text-primary" />
