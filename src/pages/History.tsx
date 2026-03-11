@@ -2,19 +2,24 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RefreshCw, Calendar, Clock, X, ZoomIn, Camera } from "lucide-react";
+import { RefreshCw, Calendar, Clock, X, ZoomIn, Camera, ArrowUpDown } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { DateSelector } from "@/components/DateSelector";
+import { TimeSlotSelector } from "@/components/TimeSlotSelector";
 
 const History = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [selectedCameras, setSelectedCameras] = useState<string[]>([]);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [newestFirst, setNewestFirst] = useState(true);
   const itemsPerPage = 20;
 
   const { data: cameras = [] } = useQuery({
@@ -31,7 +36,7 @@ const History = () => {
   });
 
   const { data: snapshots = [], isLoading } = useQuery({
-    queryKey: ['all-snapshots', page, selectedCameras],
+    queryKey: ['all-snapshots', page, selectedCameras, selectedDates.map(d => format(d, 'yyyy-MM-dd')), selectedTimes, newestFirst],
     queryFn: async () => {
       let query = supabase
         .from('snapshots')
@@ -48,11 +53,30 @@ const History = () => {
             elevation_ft
           )
         `)
-        .order('captured_at', { ascending: false })
+        .order('captured_at', { ascending: !newestFirst })
         .range(page * itemsPerPage, (page + 1) * itemsPerPage - 1);
 
       if (selectedCameras.length > 0) {
         query = query.in('camera_id', selectedCameras);
+      }
+
+      if (selectedDates.length > 0) {
+        const dateFilters = selectedDates.map(d => {
+          const dateStr = format(d, 'yyyy-MM-dd');
+          return `and(captured_at.gte.${dateStr}T00:00:00,captured_at.lte.${dateStr}T23:59:59)`;
+        });
+        query = query.or(dateFilters.join(','));
+      }
+
+      if (selectedTimes.length > 0) {
+        const timeSlots = selectedTimes.map(t => {
+          const [hours, minutes] = t.split(':');
+          const hour = parseInt(hours);
+          const period = hour >= 12 ? 'PM' : 'AM';
+          const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+          return `${displayHour}:${minutes} ${period}`;
+        });
+        query = query.in('time_slot', timeSlots);
       }
 
       const { data, error } = await query;
@@ -72,6 +96,8 @@ const History = () => {
     navigate(`/?date=${dateStr}&time=${timeSlot.replace(' ', '+')}`);
   };
 
+  const resetPage = () => setPage(0);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-mountain-sky to-background">
       <Header />
@@ -84,27 +110,65 @@ const History = () => {
               Browse all captured webcam snapshots from Crystal Mountain
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Camera className="h-4 w-4 text-muted-foreground shrink-0" />
-            <ToggleGroup
-              type="multiple"
-              value={selectedCameras}
-              onValueChange={(val) => { setSelectedCameras(val); setPage(0); }}
-              className="flex-wrap justify-start"
-            >
-              {cameras.map((cam: any) => (
-                <ToggleGroupItem
-                  key={cam.id}
-                  value={cam.id}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs"
-                >
-                  {cam.name}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+
+          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-sm border border-border space-y-4">
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-muted-foreground">Filter by Date(s)</span>
+              <DateSelector
+                selectedDates={selectedDates}
+                onDatesSelect={(dates) => { setSelectedDates(dates); resetPage(); }}
+              />
+              {selectedDates.length > 0 && (
+                <Button variant="ghost" size="sm" className="w-fit text-xs" onClick={() => { setSelectedDates([]); resetPage(); }}>
+                  Clear dates (show all)
+                </Button>
+              )}
+            </div>
+
+            <TimeSlotSelector
+              selectedTimes={selectedTimes}
+              onTimesSelect={(times) => { setSelectedTimes(times); resetPage(); }}
+            />
+            {selectedTimes.length > 0 && (
+              <Button variant="ghost" size="sm" className="w-fit text-xs" onClick={() => { setSelectedTimes([]); resetPage(); }}>
+                Clear time filter (show all)
+              </Button>
+            )}
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Camera className="h-4 w-4 text-muted-foreground shrink-0" />
+              <ToggleGroup
+                type="multiple"
+                value={selectedCameras}
+                onValueChange={(val) => { setSelectedCameras(val); resetPage(); }}
+                className="flex-wrap justify-start"
+              >
+                {cameras.map((cam: any) => (
+                  <ToggleGroupItem
+                    key={cam.id}
+                    value={cam.id}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    {cam.name}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
           </div>
+        </div>
+
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setNewestFirst(!newestFirst)}
+            className="gap-2 text-xs sm:text-sm"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            {newestFirst ? "Newest First" : "Oldest First"}
+          </Button>
         </div>
 
         {isLoading ? (
@@ -116,7 +180,7 @@ const History = () => {
             <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">No snapshots found</h3>
             <p className="text-muted-foreground">
-              No webcam snapshots available yet.
+              No webcam snapshots match the current filters.
             </p>
           </div>
         ) : (
