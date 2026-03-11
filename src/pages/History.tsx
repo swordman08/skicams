@@ -31,7 +31,7 @@ const History = () => {
   });
 
   const { data: snapshots = [], isLoading } = useQuery({
-    queryKey: ['all-snapshots', page, selectedCamera],
+    queryKey: ['all-snapshots', page, selectedCameras],
     queryFn: async () => {
       let query = supabase
         .from('snapshots')
@@ -51,8 +51,8 @@ const History = () => {
         .order('captured_at', { ascending: false })
         .range(page * itemsPerPage, (page + 1) * itemsPerPage - 1);
 
-      if (selectedCamera !== "all") {
-        query = query.eq('camera_id', selectedCamera);
+      if (selectedCameras.length > 0) {
+        query = query.in('camera_id', selectedCameras);
       }
 
       const { data, error } = await query;
