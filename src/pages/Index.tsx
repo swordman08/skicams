@@ -46,8 +46,10 @@ const Index = () => {
     const sortedKeys = [...map.keys()].sort((a, b) => {
       const [dateA, timeA] = a.split('|');
       const [dateB, timeB] = b.split('|');
-      if (dateA !== dateB) return dateB.localeCompare(dateA); // newer first
-      return TIME_ORDER.indexOf(timeA) - TIME_ORDER.indexOf(timeB); // morning first
+      const dateCompare = newestFirst ? dateB.localeCompare(dateA) : dateA.localeCompare(dateB);
+      if (dateA !== dateB) return dateCompare;
+      const timeCompare = TIME_ORDER.indexOf(timeA) - TIME_ORDER.indexOf(timeB);
+      return newestFirst ? timeCompare : -timeCompare;
     });
 
     for (const key of sortedKeys) {
