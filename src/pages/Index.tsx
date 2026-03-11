@@ -15,6 +15,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const [selectedDates, setSelectedDates] = useState<Date[]>([new Date()]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>(["10:30"]);
+  const [newestFirst, setNewestFirst] = useState(true);
   const { data: snapshots = [], isLoading } = useWebcamData(selectedDates, selectedTimes);
 
   useEffect(() => {
