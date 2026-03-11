@@ -77,11 +77,27 @@ const History = () => {
       <Header />
       
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="mb-4 sm:mb-8 space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Complete History</h2>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Browse all captured webcam snapshots from Crystal Mountain
-          </p>
+        <div className="mb-4 sm:mb-8 space-y-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Complete History</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Browse all captured webcam snapshots from Crystal Mountain
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Camera className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedCamera} onValueChange={(val) => { setSelectedCamera(val); setPage(0); }}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Cameras" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cameras</SelectItem>
+                {cameras.map((cam: any) => (
+                  <SelectItem key={cam.id} value={cam.id}>{cam.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {isLoading ? (
