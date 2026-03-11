@@ -5,7 +5,8 @@ import { DateSelector } from "@/components/DateSelector";
 import { TimeSlotSelector } from "@/components/TimeSlotSelector";
 import { WebcamCard } from "@/components/WebcamCard";
 import { useWebcamData } from "@/hooks/useWebcamData";
-import { Camera, RefreshCw, Github } from "lucide-react";
+import { Camera, RefreshCw, Github, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
 const TIME_ORDER = ["7:30 AM", "12:00 PM", "3:30 PM"];
