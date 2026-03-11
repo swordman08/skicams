@@ -23,4 +23,7 @@ export const CRYSTAL_MOUNTAIN_CAMERAS = [
   "Snow Stake",
   "Gold Hills",
   "Northway Lift Cam",
+  "Ridge Cam",
+  "Midway Cam",
+  "Top of Chair 6",
 ];
