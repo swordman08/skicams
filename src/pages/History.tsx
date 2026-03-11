@@ -84,19 +84,26 @@ const History = () => {
               Browse all captured webcam snapshots from Crystal Mountain
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Camera className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedCamera} onValueChange={(val) => { setSelectedCamera(val); setPage(0); }}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="All Cameras" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cameras</SelectItem>
-                {cameras.map((cam: any) => (
-                  <SelectItem key={cam.id} value={cam.id}>{cam.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Camera className="h-4 w-4 text-muted-foreground shrink-0" />
+            <ToggleGroup
+              type="multiple"
+              value={selectedCameras}
+              onValueChange={(val) => { setSelectedCameras(val); setPage(0); }}
+              className="flex-wrap justify-start"
+            >
+              {cameras.map((cam: any) => (
+                <ToggleGroupItem
+                  key={cam.id}
+                  value={cam.id}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  {cam.name}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
         </div>
 
