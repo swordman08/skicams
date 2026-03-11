@@ -5,7 +5,8 @@ import { DateSelector } from "@/components/DateSelector";
 import { TimeSlotSelector } from "@/components/TimeSlotSelector";
 import { WebcamCard } from "@/components/WebcamCard";
 import { useWebcamData } from "@/hooks/useWebcamData";
-import { Camera, RefreshCw, Github } from "lucide-react";
+import { Camera, RefreshCw, Github, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
 const TIME_ORDER = ["7:30 AM", "12:00 PM", "3:30 PM"];
@@ -14,6 +15,7 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const [selectedDates, setSelectedDates] = useState<Date[]>([new Date()]);
   const [selectedTimes, setSelectedTimes] = useState<string[]>(["10:30"]);
+  const [newestFirst, setNewestFirst] = useState(true);
   const { data: snapshots = [], isLoading } = useWebcamData(selectedDates, selectedTimes);
 
   useEffect(() => {
@@ -44,8 +46,10 @@ const Index = () => {
     const sortedKeys = [...map.keys()].sort((a, b) => {
       const [dateA, timeA] = a.split('|');
       const [dateB, timeB] = b.split('|');
-      if (dateA !== dateB) return dateB.localeCompare(dateA); // newer first
-      return TIME_ORDER.indexOf(timeA) - TIME_ORDER.indexOf(timeB); // morning first
+      const dateCompare = newestFirst ? dateB.localeCompare(dateA) : dateA.localeCompare(dateB);
+      if (dateA !== dateB) return dateCompare;
+      const timeCompare = TIME_ORDER.indexOf(timeA) - TIME_ORDER.indexOf(timeB);
+      return newestFirst ? timeCompare : -timeCompare;
     });
 
     for (const key of sortedKeys) {
@@ -54,7 +58,7 @@ const Index = () => {
     }
 
     return groups;
-  }, [snapshots]);
+  }, [snapshots, newestFirst]);
 
   const showGroupHeaders = selectedDates.length > 1 || selectedTimes.length > 1;
 
@@ -88,6 +92,18 @@ const Index = () => {
             selectedTimes={selectedTimes}
             onTimesSelect={setSelectedTimes}
           />
+        </div>
+
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setNewestFirst(!newestFirst)}
+            className="gap-2 text-xs sm:text-sm"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            {newestFirst ? "Newest First" : "Oldest First"}
+          </Button>
         </div>
 
         {isLoading ? (
