@@ -16,20 +16,27 @@ interface Snapshot {
   };
 }
 
-export const useWebcamData = (selectedDate: Date, selectedTime: string) => {
-  return useQuery({
-    queryKey: ['webcam-snapshots', selectedDate, selectedTime],
-    queryFn: async () => {
-      const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      
-      // Convert time format (e.g., "10:30" to "10:30 AM")
-      const [hours, minutes] = selectedTime.split(':');
-      const hour = parseInt(hours);
-      const period = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-      const timeSlot = `${displayHour}:${minutes} ${period}`;
+const timeToSlot = (time: string) => {
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+  return `${displayHour}:${minutes} ${period}`;
+};
 
-      console.log('Fetching snapshots for:', { dateStr, timeSlot });
+export const useWebcamData = (selectedDates: Date[], selectedTimes: string[]) => {
+  return useQuery({
+    queryKey: ['webcam-snapshots', selectedDates.map(d => format(d, 'yyyy-MM-dd')).sort(), selectedTimes],
+    queryFn: async () => {
+      if (selectedDates.length === 0 || selectedTimes.length === 0) return [];
+
+      const timeSlots = selectedTimes.map(timeToSlot);
+
+      // Build date filter: OR across all selected dates
+      const dateFilters = selectedDates.map(d => {
+        const dateStr = format(d, 'yyyy-MM-dd');
+        return `and(captured_at.gte.${dateStr}T00:00:00,captured_at.lte.${dateStr}T23:59:59)`;
+      });
 
       const { data, error } = await supabase
         .from('snapshots')
@@ -46,9 +53,8 @@ export const useWebcamData = (selectedDate: Date, selectedTime: string) => {
             elevation_ft
           )
         `)
-        .gte('captured_at', `${dateStr}T00:00:00`)
-        .lte('captured_at', `${dateStr}T23:59:59`)
-        .eq('time_slot', timeSlot)
+        .or(dateFilters.join(','))
+        .in('time_slot', timeSlots)
         .order('captured_at', { ascending: false });
 
       if (error) {
@@ -56,10 +62,8 @@ export const useWebcamData = (selectedDate: Date, selectedTime: string) => {
         throw error;
       }
 
-      console.log('Fetched snapshots:', data);
-
       return (data as Snapshot[]) || [];
     },
-    staleTime: 60000, // 1 minute
+    staleTime: 60000,
   });
 };
