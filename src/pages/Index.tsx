@@ -58,7 +58,7 @@ const Index = () => {
     }
 
     return groups;
-  }, [snapshots]);
+  }, [snapshots, newestFirst]);
 
   const showGroupHeaders = selectedDates.length > 1 || selectedTimes.length > 1;
 
