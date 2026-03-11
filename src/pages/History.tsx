@@ -8,13 +8,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const History = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState<any>(null);
-  const [selectedCamera, setSelectedCamera] = useState<string>("all");
+  const [selectedCameras, setSelectedCameras] = useState<string[]>([]);
   const itemsPerPage = 20;
 
   const { data: cameras = [] } = useQuery({
@@ -31,7 +31,7 @@ const History = () => {
   });
 
   const { data: snapshots = [], isLoading } = useQuery({
-    queryKey: ['all-snapshots', page, selectedCamera],
+    queryKey: ['all-snapshots', page, selectedCameras],
     queryFn: async () => {
       let query = supabase
         .from('snapshots')
@@ -51,8 +51,8 @@ const History = () => {
         .order('captured_at', { ascending: false })
         .range(page * itemsPerPage, (page + 1) * itemsPerPage - 1);
 
-      if (selectedCamera !== "all") {
-        query = query.eq('camera_id', selectedCamera);
+      if (selectedCameras.length > 0) {
+        query = query.in('camera_id', selectedCameras);
       }
 
       const { data, error } = await query;
@@ -84,19 +84,26 @@ const History = () => {
               Browse all captured webcam snapshots from Crystal Mountain
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Camera className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedCamera} onValueChange={(val) => { setSelectedCamera(val); setPage(0); }}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="All Cameras" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cameras</SelectItem>
-                {cameras.map((cam: any) => (
-                  <SelectItem key={cam.id} value={cam.id}>{cam.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Camera className="h-4 w-4 text-muted-foreground shrink-0" />
+            <ToggleGroup
+              type="multiple"
+              value={selectedCameras}
+              onValueChange={(val) => { setSelectedCameras(val); setPage(0); }}
+              className="flex-wrap justify-start"
+            >
+              {cameras.map((cam: any) => (
+                <ToggleGroupItem
+                  key={cam.id}
+                  value={cam.id}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  {cam.name}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
         </div>
 
