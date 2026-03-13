@@ -14,7 +14,7 @@ const TIME_ORDER = ["7:30 AM", "12:00 PM", "3:30 PM"];
 const Index = () => {
   const [searchParams] = useSearchParams();
   const [selectedDates, setSelectedDates] = useState<Date[]>([new Date()]);
-  const [selectedTimes, setSelectedTimes] = useState<string[]>(["10:30"]);
+  const [selectedTimes, setSelectedTimes] = useState<string[]>(["07:30", "12:00", "15:30"]);
   const [newestFirst, setNewestFirst] = useState(true);
   const { data: snapshots = [], isLoading } = useWebcamData(selectedDates, selectedTimes);
 
