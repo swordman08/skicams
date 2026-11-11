@@ -90,21 +90,32 @@ serve(async (req) => {
     const results: Array<{ camera: string; success: boolean }> = [];
     const now = new Date();
     
-    // Convert UTC to Pacific Time to determine time slot
-    // Determine if DST is in effect (second Sunday of March to first Sunday of November)
-    const year = now.getUTCFullYear();
-    const marchSecondSunday = new Date(Date.UTC(year, 2, 8 + (7 - new Date(Date.UTC(year, 2, 8)).getUTCDay()) % 7));
-    const novFirstSunday = new Date(Date.UTC(year, 10, 1 + (7 - new Date(Date.UTC(year, 10, 1)).getUTCDay()) % 7));
-    const isDST = now >= marchSecondSunday && now < novFirstSunday;
-    const pacificOffset = isDST ? -7 * 60 : -8 * 60;
-    const pacificTime = new Date(now.getTime() + pacificOffset * 60 * 1000);
-    const hour = pacificTime.getUTCHours();
-    
-    // Determine time slot based on PST time (7:30 AM, 12:00 PM, and 3:30 PM)
-    let timeSlot = '7:30 AM'; // default
-    if (hour >= 15) timeSlot = '3:30 PM'; // After 3 PM PST
-    else if (hour >= 12) timeSlot = '12:00 PM'; // After 12 PM PST
-    else timeSlot = '7:30 AM'; // Before 12 PM PST
+    // Determine the Pacific-time slot using the real America/Los_Angeles zone,
+    // so Daylight Saving changes are handled automatically. Cron fires at both the
+    // PST and PDT UTC times; only the run that lands on the real Pacific slot captures.
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    }).formatToParts(now);
+    const pH = parseInt(parts.find(p => p.type === 'hour')!.value);
+    const pM = parseInt(parts.find(p => p.type === 'minute')!.value);
+    const pacificMinutes = pH * 60 + pM;
+    const SLOTS = [
+      { label: '7:30 AM', minutes: 7 * 60 + 30 },
+      { label: '12:00 PM', minutes: 12 * 60 },
+      { label: '3:30 PM', minutes: 15 * 60 + 30 },
+    ];
+    const match = SLOTS.find(s => Math.abs(pacificMinutes - s.minutes) <= 25);
+    let force = false;
+    try { const b = await req.clone().json(); force = b?.force === true; } catch { /* no body */ }
+    if (!match && !force) {
+      console.log(`Skipping: Pacific time ${pH}:${String(pM).padStart(2, '0')} is not a capture slot`);
+      return new Response(JSON.stringify({ success: true, skipped: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+    }
+    const timeSlot = match
+      ? match.label
+      : SLOTS.reduce((a, b) => Math.abs(pacificMinutes - b.minutes) < Math.abs(pacificMinutes - a.minutes) ? b : a).label;
+    console.log(`Pacific time ${pH}:${String(pM).padStart(2, '0')} -> slot ${timeSlot}`);
 
     for (const camera of cameras || []) {
       try {
